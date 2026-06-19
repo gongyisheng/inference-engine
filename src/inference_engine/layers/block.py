@@ -14,7 +14,7 @@ class TransformerBlock(nn.Module):
         self.post_attention_layernorm = RMSNorm(cfg.hidden_size, cfg.rms_norm_eps)
         self.mlp = MLP(cfg)
 
-    def forward(self, x, cos, sin):
-        x = x + self.self_attn(self.input_layernorm(x), cos, sin)
+    def forward(self, x, cos, sin, cache=None, layer_idx=0):
+        x = x + self.self_attn(self.input_layernorm(x), cos, sin, cache, layer_idx)
         x = x + self.mlp(self.post_attention_layernorm(x))
         return x

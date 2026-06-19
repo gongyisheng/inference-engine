@@ -1,14 +1,15 @@
 """Local engine micro-benchmark (no HTTP).
 
 Measures prefill (first forward over the prompt) vs decode (each subsequent
-single-token forward) separately. There is no KV cache yet, so decode is O(n^2)
-recompute — these numbers are the Phase 0 baseline that KV cache will improve.
+single-token forward) separately. Decode feeds one token at a time through a
+KVCache, so each step is O(n) instead of O(n^2) recompute.
 """
 import argparse
 import time
 
 import torch
 
+from inference_engine.cache import KVCache
 from inference_engine.engine import LLM
 
 
@@ -22,21 +23,21 @@ def run(llm: LLM, prompt_len: int, output_len: int):
         if "cuda" in str(device):
             torch.cuda.synchronize()
 
+    cache = KVCache(llm.cfg.num_hidden_layers)
+
     sync()
     t0 = time.perf_counter()
-    logits = llm.model(ids)
+    logits = llm.model(ids, cache)
     sync()
     prefill_s = time.perf_counter() - t0
 
     next_id = logits[:, -1, :].argmax(dim=-1, keepdim=True)
-    seq = torch.cat([ids, next_id], dim=1)
 
     sync()
     t0 = time.perf_counter()
     for _ in range(output_len - 1):
-        logits = llm.model(seq)
+        logits = llm.model(next_id, cache)
         next_id = logits[:, -1, :].argmax(dim=-1, keepdim=True)
-        seq = torch.cat([seq, next_id], dim=1)
     sync()
     decode_s = time.perf_counter() - t0
 

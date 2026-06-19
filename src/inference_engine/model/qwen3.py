@@ -17,9 +17,10 @@ class Qwen3ForCausalLM(nn.Module):
         )
         self.lm_head = nn.Linear(cfg.hidden_size, cfg.vocab_size, bias=False)
 
-    def forward(self, input_ids):
+    def forward(self, input_ids, cache=None):
         _, s = input_ids.shape
+        past = cache.length if cache is not None else 0
         dtype = self.model.embed_tokens.weight.dtype
-        cos, sin = rope_cos_sin(s, self.cfg.head_dim, self.cfg.rope_theta, input_ids.device, dtype)
-        h = self.model(input_ids, cos, sin)
+        cos, sin = rope_cos_sin(s, self.cfg.head_dim, self.cfg.rope_theta, input_ids.device, dtype, offset=past)
+        h = self.model(input_ids, cos, sin, cache)
         return self.lm_head(h)

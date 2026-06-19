@@ -8,7 +8,7 @@ from ..layers.norm import RMSNorm
 class Transformer(nn.Module):
     """Generic decoder stack: embed -> blocks -> final norm.
 
-    `block_factory` builds one block; each block takes `(x, cos, sin)`.
+    `block_factory` builds one block; each block takes `(x, cos, sin, cache, layer_idx)`.
     """
 
     def __init__(self, vocab_size: int, hidden_size: int, num_layers: int, eps: float,
@@ -18,8 +18,8 @@ class Transformer(nn.Module):
         self.layers = nn.ModuleList([block_factory() for _ in range(num_layers)])
         self.norm = RMSNorm(hidden_size, eps)
 
-    def forward(self, input_ids, cos, sin):
+    def forward(self, input_ids, cos, sin, cache=None):
         x = self.embed_tokens(input_ids)
-        for layer in self.layers:
-            x = layer(x, cos, sin)
+        for i, layer in enumerate(self.layers):
+            x = layer(x, cos, sin, cache, i)
         return self.norm(x)
