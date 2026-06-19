@@ -21,7 +21,7 @@ def create_app(engine, default_max_tokens: int = 512) -> FastAPI:
                                     "type": "invalid_request_error"}},
             )
         messages = [m.model_dump() for m in req.messages]
-        max_tokens = req.max_tokens or default_max_tokens
+        max_tokens = req.max_tokens if req.max_tokens is not None else default_max_tokens
         result = engine.generate(messages, max_tokens)
         prompt_tokens = result["prompt_tokens"]
         completion_tokens = result["completion_tokens"]

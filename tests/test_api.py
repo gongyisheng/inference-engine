@@ -54,7 +54,15 @@ def test_empty_messages_returns_400():
     assert "error" in r.json()
 
 
+def test_max_tokens_zero_is_respected():
+    eng = FakeEngine()
+    client(eng).post("/v1/chat/completions", json={
+        "model": "qwen", "messages": [{"role": "user", "content": "hi"}], "max_tokens": 0,
+    })
+    assert eng.last_call[1] == 0
+
+
 def test_missing_field_returns_422():
     c = client()
-    r = c.post("/v1/chat/completions", json={"messages": []})
+    r = c.post("/v1/chat/completions", json={"model": "qwen"})
     assert r.status_code == 422
