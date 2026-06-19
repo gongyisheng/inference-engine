@@ -18,22 +18,26 @@ def run(llm: LLM, prompt_len: int, output_len: int):
     vocab = llm.cfg.vocab_size
     ids = torch.randint(0, vocab, (1, prompt_len), device=device)
 
-    torch.cuda.synchronize()
+    def sync():
+        if "cuda" in str(device):
+            torch.cuda.synchronize()
+
+    sync()
     t0 = time.perf_counter()
     logits = llm.model(ids)
-    torch.cuda.synchronize()
+    sync()
     prefill_s = time.perf_counter() - t0
 
     next_id = logits[:, -1, :].argmax(dim=-1, keepdim=True)
     seq = torch.cat([ids, next_id], dim=1)
 
-    torch.cuda.synchronize()
+    sync()
     t0 = time.perf_counter()
     for _ in range(output_len - 1):
         logits = llm.model(seq)
         next_id = logits[:, -1, :].argmax(dim=-1, keepdim=True)
         seq = torch.cat([seq, next_id], dim=1)
-    torch.cuda.synchronize()
+    sync()
     decode_s = time.perf_counter() - t0
 
     decode_tokens = max(output_len - 1, 0)
