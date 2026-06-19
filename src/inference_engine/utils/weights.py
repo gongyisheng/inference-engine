@@ -5,8 +5,8 @@ import torch
 from huggingface_hub import snapshot_download
 from safetensors.torch import load_file
 
+from ..model.qwen3 import Qwen3ForCausalLM
 from .config import Qwen3Config
-from .model import Qwen3ForCausalLM
 
 
 def load_model(model_id: str = "Qwen/Qwen3-4B", device: str = "cuda:0", dtype=torch.bfloat16):

@@ -16,6 +16,7 @@ class Qwen3Config:
     tie_word_embeddings: bool
     max_position_embeddings: int
     eos_token_id: int | list[int]
+    hidden_act: str = "silu"
 
     @classmethod
     def from_json(cls, path: str) -> "Qwen3Config":
@@ -34,4 +35,5 @@ class Qwen3Config:
             tie_word_embeddings=c.get("tie_word_embeddings", False),
             max_position_embeddings=c["max_position_embeddings"],
             eos_token_id=c["eos_token_id"],
+            hidden_act=c.get("hidden_act", "silu"),
         )

@@ -1,5 +1,5 @@
 import json
-from inference_engine.config import Qwen3Config
+from inference_engine.utils.config import Qwen3Config
 
 
 def test_from_json(tmp_path):

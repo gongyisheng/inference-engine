@@ -1,7 +1,7 @@
 import torch
 
-from inference_engine.config import Qwen3Config
-from inference_engine.model import Qwen3ForCausalLM
+from inference_engine.utils.config import Qwen3Config
+from inference_engine.model.qwen3 import Qwen3ForCausalLM
 
 
 def tiny_cfg():

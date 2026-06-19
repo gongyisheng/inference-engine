@@ -1,7 +1,7 @@
 import argparse
 
-from .weights import load_model
-from .tokenizer import Tokenizer
+from .utils.weights import load_model
+from .utils.tokenizer import Tokenizer
 from .generate import greedy_generate
 
 

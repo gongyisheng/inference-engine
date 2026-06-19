@@ -10,7 +10,7 @@ torch_cuda = pytest.mark.skipif(not torch.cuda.is_available(), reason="needs CUD
 @torch_cuda
 def test_greedy_tokens_match_hf():
     from transformers import AutoModelForCausalLM, AutoTokenizer
-    from inference_engine.weights import load_model
+    from inference_engine.utils.weights import load_model
     from inference_engine.generate import greedy_generate
 
     ours, cfg, path = load_model(MODEL_ID, device="cuda:0")
@@ -30,7 +30,7 @@ def test_greedy_tokens_match_hf():
 @torch_cuda
 def test_last_logits_argmax_match_hf():
     from transformers import AutoModelForCausalLM, AutoTokenizer
-    from inference_engine.weights import load_model
+    from inference_engine.utils.weights import load_model
 
     ours, cfg, path = load_model(MODEL_ID, device="cuda:0")
     ref = AutoModelForCausalLM.from_pretrained(MODEL_ID, torch_dtype=torch.bfloat16).to("cuda:1").eval()
