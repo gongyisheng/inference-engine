@@ -13,15 +13,15 @@ class LLM:
         self.tokenizer = Tokenizer(path)
         self.device = device
 
-    def generate(self, messages, max_tokens: int) -> dict:
-        ids = self.tokenizer.apply_chat(messages).to(self.device)
+    def generate(self, messages: list[dict], max_tokens: int, enable_thinking: bool = True) -> dict:
+        ids = self.tokenizer.apply_chat(messages, enable_thinking=enable_thinking).to(self.device)
         prompt_tokens = ids.shape[1]
         out = greedy_generate(self.model, ids, max_tokens, self.cfg.eos_token_id)
         new_ids = out[0, prompt_tokens:]
         completion_tokens = int(new_ids.shape[0])
-        eos = self.cfg.eos_token_id
-        eos = eos if isinstance(eos, list) else [eos]
-        hit_eos = completion_tokens > 0 and int(new_ids[-1].item()) in eos
+        eos_set = self.cfg.eos_token_id
+        eos_set = eos_set if isinstance(eos_set, list) else [eos_set]
+        hit_eos = completion_tokens > 0 and int(new_ids[-1].item()) in eos_set
         return {
             "text": self.tokenizer.decode(new_ids),
             "prompt_tokens": prompt_tokens,
