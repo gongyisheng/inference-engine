@@ -42,3 +42,27 @@ def create_app(engine, default_max_tokens: int = 512) -> FastAPI:
         return resp.model_dump()
 
     return app
+
+
+def main():
+    import argparse
+
+    import uvicorn
+
+    from ..engine import LLM
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--model", default="Qwen/Qwen3-4B")
+    parser.add_argument("--device", default="cuda:0")
+    parser.add_argument("--host", default="127.0.0.1")
+    parser.add_argument("--port", type=int, default=8000)
+    parser.add_argument("--max-tokens", type=int, default=512)
+    args = parser.parse_args()
+
+    engine = LLM(args.model, device=args.device)
+    app = create_app(engine, default_max_tokens=args.max_tokens)
+    uvicorn.run(app, host=args.host, port=args.port)
+
+
+if __name__ == "__main__":
+    main()
