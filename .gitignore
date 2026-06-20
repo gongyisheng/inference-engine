@@ -219,3 +219,8 @@ __marimo__/
 
 docs/superpowers
 .superpowers/
+
+# Nsight Systems profiling artifacts
+*.nsys-rep
+*.qdstrm
+*.sqlite
